@@ -48,9 +48,11 @@ export default function Navbar() {
             transition={{ duration: 0.5 }}
             className="text-3xl font-bold"
           >
-            <Link href="/" className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+            {/* <Link href="/" className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600"> */}
+            <Link href="/" className="text-transparent bg-clip-text bg-white">
               {/* NeuralNitwits */}
-              <Image src="/NeuralNitwits_White.png" alt="NeuralNitwits" width={150} height={50} />
+              {/* <Image src="/NeuralNitwits_White.png" alt="NeuralNitwits" width={150} height={50} /> */}
+              IntruSafe
             </Link>
           </motion.div>
 

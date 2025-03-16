@@ -2,54 +2,80 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Play, Pause, AlertTriangle, CheckCircle } from "lucide-react"
+import { Play, Pause, AlertTriangle, CheckCircle, Shield, AlertCircle } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
-// Sample network log data
+// Enhanced network log data with attack categories matching your model training data
 const sampleLogs = [
   {
     id: 1,
     timestamp: "2025-03-16T20:15:45",
     source: "192.168.1.105",
     destination: "172.217.167.78",
-    protocol: "HTTPS",
-    status: "secure",
-    details: "GET request to google.com",
+    protocol: "tcp",
+    state: "CON",
+    rate: "57.32156",
+    packets: "12",
+    bytes: "1842",
+    attackCat: "Normal",
+    label: "0",
+    details: "Established connection",
   },
   {
     id: 2,
     timestamp: "2025-03-16T20:15:48",
     source: "192.168.1.105",
     destination: "104.244.42.193",
-    protocol: "HTTPS",
-    status: "secure",
-    details: "POST request to api.twitter.com",
+    protocol: "tcp",
+    state: "CON",
+    rate: "42.18753",
+    packets: "8",
+    bytes: "1254",
+    attackCat: "Normal",
+    label: "0",
+    details: "Encrypted data transfer",
   },
   {
     id: 3,
     timestamp: "2025-03-16T20:15:52",
-    source: "192.168.1.105",
-    destination: "185.199.108.153",
-    protocol: "HTTPS",
-    status: "secure",
-    details: "GET request to github.com",
+    source: "45.86.201.12",
+    destination: "192.168.1.105",
+    protocol: "tcp",
+    state: "INT",
+    rate: "98.75326",
+    packets: "26",
+    bytes: "3450",
+    attackCat: "DoS",
+    label: "1",
+    details: "High packet rate detected",
   },
   {
     id: 4,
     timestamp: "2025-03-16T20:16:01",
     source: "192.168.1.105",
     destination: "93.184.216.34",
-    protocol: "HTTP",
-    status: "suspicious",
-    details: "Unencrypted connection attempt",
+    protocol: "tcp",
+    state: "FIN",
+    rate: "12.38764",
+    packets: "3",
+    bytes: "742",
+    attackCat: "Normal",
+    label: "0",
+    details: "Connection terminated",
   },
   {
     id: 5,
     timestamp: "2025-03-16T20:16:05",
-    source: "192.168.1.105",
-    destination: "54.229.21.92",
-    protocol: "HTTPS",
-    status: "secure",
-    details: "GET request to amazonaws.com",
+    source: "185.142.236.43",
+    destination: "192.168.1.105",
+    protocol: "udp",
+    state: "INT",
+    rate: "87.42196",
+    packets: "18",
+    bytes: "2415",
+    attackCat: "Reconnaissance",
+    label: "1",
+    details: "Port scanning detected",
   },
 ]
 
@@ -64,14 +90,31 @@ export default function NetworkLogsPanel() {
 
       // Simulate new logs coming in
       const interval = setInterval(() => {
+        // Generate random network traffic with occasional attack patterns
+        const isAttack = Math.random() > 0.7
+        const attackTypes = ["DoS", "Exploits", "Reconnaissance", "Shellcode", "Backdoor"]
+        const protocols = ["tcp", "udp", "icmp"]
+        const states = ["FIN", "CON", "RST", "INT"]
+        
         const newLog = {
           id: Date.now(),
           timestamp: new Date().toISOString(),
-          source: "192.168.1.105",
-          destination: `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
-          protocol: Math.random() > 0.2 ? "HTTPS" : "HTTP",
-          status: Math.random() > 0.3 ? "secure" : "suspicious",
-          details: Math.random() > 0.3 ? "Standard web traffic" : "Unusual connection pattern detected",
+          source: isAttack ? 
+            `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}` :
+            "192.168.1.105",
+          destination: isAttack ? 
+            "192.168.1.105" :
+            `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
+          protocol: protocols[Math.floor(Math.random() * protocols.length)],
+          state: states[Math.floor(Math.random() * states.length)],
+          rate: (Math.random() * 100).toFixed(5),
+          packets: (Math.floor(Math.random() * 30) + 1).toString(),
+          bytes: (Math.floor(Math.random() * 4000) + 200).toString(),
+          attackCat: isAttack ? attackTypes[Math.floor(Math.random() * attackTypes.length)] : "Normal",
+          label: isAttack ? "1" : "0",
+          details: isAttack ? 
+            ["Unusual traffic pattern", "Multiple connection attempts", "Port scan detected", "Payload signature matched", "Brute force attempt"][Math.floor(Math.random() * 5)] : 
+            ["Standard web traffic", "Routine data transfer", "Application update", "DNS lookup", "Media streaming"][Math.floor(Math.random() * 5)],
         }
 
         setLogs((prevLogs) => [newLog, ...prevLogs.slice(0, 9)])
@@ -89,12 +132,14 @@ export default function NetworkLogsPanel() {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden w-full">
-      <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-        <h3 className="font-semibold">Network Logs</h3>
+    <div className="bg-gray-900 rounded-lg border border-blue-500/30 shadow-lg shadow-blue-500/20 overflow-hidden w-full">
+      <div className="p-4 border-b border-blue-500/30 flex justify-between items-center">
+        <h3 className="font-semibold text-blue-300 text-xl">Live Network Traffic</h3>
         <Button
           onClick={() => setIsMonitoring(!isMonitoring)}
-          className={isMonitoring ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"}
+          className={isMonitoring 
+            ? "bg-red-500 hover:bg-red-600 text-white border border-red-300 shadow-md shadow-red-500/30" 
+            : "bg-blue-500 hover:bg-blue-600 text-white border border-blue-300 shadow-md shadow-blue-500/30"}
         >
           {isMonitoring ? (
             <>
@@ -111,40 +156,48 @@ export default function NetworkLogsPanel() {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-900">
-              <th className="px-4 py-2 text-left">Time</th>
-              <th className="px-4 py-2 text-left">Source IP</th>
-              <th className="px-4 py-2 text-left">Destination IP</th>
-              <th className="px-4 py-2 text-left">Protocol</th>
-              <th className="px-4 py-2 text-left">Status</th>
-              <th className="px-4 py-2 text-left">Details</th>
+            <tr className="bg-gray-900 border-b border-blue-500/30">
+              <th className="px-4 py-2 text-left text-blue-300">Time</th>
+              <th className="px-4 py-2 text-left text-blue-300">Source IP</th>
+              <th className="px-4 py-2 text-left text-blue-300">Destination IP</th>
+              <th className="px-4 py-2 text-left text-blue-300">Protocol</th>
+              <th className="px-4 py-2 text-left text-blue-300">State</th>
+              <th className="px-4 py-2 text-left text-blue-300">Rate</th>
+              <th className="px-4 py-2 text-left text-blue-300">Attack Category</th>
+              <th className="px-4 py-2 text-left text-blue-300">Details</th>
             </tr>
           </thead>
           <tbody>
             {logs.length > 0 ? (
               logs.map((log) => (
-                <tr key={log.id} className="border-t border-gray-700 hover:bg-gray-750">
-                  <td className="px-4 py-2 text-gray-300">{formatTimestamp(log.timestamp)}</td>
-                  <td className="px-4 py-2 text-gray-300">{log.source}</td>
-                  <td className="px-4 py-2 text-gray-300">{log.destination}</td>
-                  <td className="px-4 py-2 text-gray-300">{log.protocol}</td>
+                <tr 
+                  key={log.id} 
+                  className={`border-t border-blue-500/10 hover:bg-blue-500/10 transition-colors duration-200 ${
+                    log.label === "1" ? "bg-red-900/20" : ""
+                  }`}
+                >
+                  <td className="px-4 py-2 text-blue-100">{formatTimestamp(log.timestamp)}</td>
+                  <td className="px-4 py-2 text-blue-100">{log.source}</td>
+                  <td className="px-4 py-2 text-blue-100">{log.destination}</td>
+                  <td className="px-4 py-2 text-purple-300">{log.protocol}</td>
+                  <td className="px-4 py-2 text-blue-100">{log.state}</td>
+                  <td className="px-4 py-2 text-blue-100">{log.rate}</td>
                   <td className="px-4 py-2">
-                    {log.status === "secure" ? (
-                      <span className="flex items-center text-green-500">
-                        <CheckCircle className="mr-1 h-4 w-4" /> Secure
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-amber-500">
-                        <AlertTriangle className="mr-1 h-4 w-4" /> Suspicious
-                      </span>
-                    )}
+                    <Badge 
+                      variant={log.attackCat === "Normal" ? "outline" : "destructive"}
+                      className={log.attackCat === "Normal" 
+                        ? "border-blue-400 text-blue-400" 
+                        : "bg-red-500 hover:bg-red-600 text-white"}
+                    >
+                      {log.attackCat}
+                    </Badge>
                   </td>
-                  <td className="px-4 py-2 text-gray-300">{log.details}</td>
+                  <td className="px-4 py-2 text-blue-100">{log.details}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
                   {isMonitoring ? "Loading network logs..." : "Click 'Start Monitoring' to view network logs"}
                 </td>
               </tr>
@@ -155,4 +208,3 @@ export default function NetworkLogsPanel() {
     </div>
   )
 }
-

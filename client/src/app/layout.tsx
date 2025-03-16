@@ -12,7 +12,7 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "Network Guardian - Advanced Network Monitoring",
+  title: "Intrusafe - Advanced Network Monitoring",
   description: "Monitor and protect your network with AI-powered threat detection",
 }
 
