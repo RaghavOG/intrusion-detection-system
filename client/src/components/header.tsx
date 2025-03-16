@@ -31,8 +31,8 @@ export default function Navbar() {
 
   const navItems = [
     { name: 'Home', href: '/', icon: Home },
-    { name: 'Charts', href: '/data/charts', icon: BarChart2 },
-    { name: 'All Data', href: '/data/complete-data', icon: BarChart2 }
+    { name: 'Charts', href: '/charts', icon: BarChart2 },
+    { name: 'All Data', href: '/data/training-data', icon: BarChart2 }
   ]
 
   return (
